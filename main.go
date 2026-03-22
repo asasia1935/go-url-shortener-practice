@@ -1,0 +1,34 @@
+package main
+
+import "github.com/gin-gonic/gin"
+
+func main() {
+	r := gin.Default()
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "Hello World",
+		})
+	})
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "pong",
+		})
+	})
+	r.POST("/api/shorten", func(c *gin.Context) {
+		var json struct {
+			URL string `json:"url"`
+		}
+
+		if err := c.BindJSON(&json); err != nil {
+			c.JSON(400, gin.H{
+				"error": "Invalid JSON",
+			})
+			return
+		}
+
+		c.JSON(200, gin.H{
+			"message": "URL shortened",
+		})
+	})
+	r.Run() // listen and serve on 0.0.0.0:8080
+}
