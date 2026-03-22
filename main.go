@@ -38,6 +38,16 @@ func main() {
 		}
 
 		shortCode := stringWithCharset(6, charset)
+
+		// 기존 shortCode가 존재하는 경우 새로운 shortCode 생성
+		for {
+			_, exists := mapURL[shortCode]
+			if !exists {
+				break
+			}
+			shortCode = stringWithCharset(6, charset)
+		}
+
 		mapURL[shortCode] = json.URL
 
 		shortURL := "http://localhost:8080/s/" + shortCode
