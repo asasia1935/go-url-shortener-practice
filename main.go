@@ -15,6 +15,12 @@ type URLMappingData struct {
 	store map[string]string
 }
 
+type ListURLMappingResponse struct {
+	ShortCode   string `json:"shortCode"`
+	OriginalURL string `json:"originalUrl"`
+	ShortURL    string `json:"shortUrl"`
+}
+
 func main() {
 	data := &URLMappingData{
 		store: make(map[string]string),
@@ -33,6 +39,7 @@ func main() {
 	})
 	r.POST("/api/shorten", data.shortenURL)
 	r.GET("/s/:shortCode", data.redirectToOriginalURL)
+	r.GET("/api/links", data.listURLMappings)
 	r.Run() // listen and serve on 0.0.0.0:8080
 }
 
@@ -85,4 +92,16 @@ func (d *URLMappingData) redirectToOriginalURL(c *gin.Context) {
 	} else {
 		c.Redirect(302, originalURL)
 	}
+}
+
+func (d *URLMappingData) listURLMappings(c *gin.Context) {
+	response := make([]ListURLMappingResponse, 0, len(d.store))
+	for shortCode, originalURL := range d.store {
+		response = append(response, ListURLMappingResponse{
+			ShortCode:   shortCode,
+			OriginalURL: originalURL,
+			ShortURL:    "http://localhost:8080/s/" + shortCode,
+		})
+	}
+	c.JSON(200, response)
 }
