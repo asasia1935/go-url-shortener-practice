@@ -32,18 +32,7 @@ func main() {
 		})
 	})
 	r.POST("/api/shorten", data.shortenURL)
-	r.GET("/s/:shortCode", func(c *gin.Context) {
-		shortCode := c.Param("shortCode")
-		originalURL, exists := data.store[shortCode]
-		if !exists {
-			c.JSON(404, gin.H{
-				"error": "Short code not found",
-			})
-			return
-		} else {
-			c.Redirect(302, originalURL)
-		}
-	})
+	r.GET("/s/:shortCode", data.redirectToOriginalURL)
 	r.Run() // listen and serve on 0.0.0.0:8080
 }
 
@@ -83,4 +72,17 @@ func (d *URLMappingData) shortenURL(c *gin.Context) {
 		"shortCode": shortCode,
 		"shortUrl":  "http://localhost:8080/s/" + shortCode,
 	})
+}
+
+func (d *URLMappingData) redirectToOriginalURL(c *gin.Context) {
+	shortCode := c.Param("shortCode")
+	originalURL, exists := d.store[shortCode]
+	if !exists {
+		c.JSON(404, gin.H{
+			"error": "Short code not found",
+		})
+		return
+	} else {
+		c.Redirect(302, originalURL)
+	}
 }
