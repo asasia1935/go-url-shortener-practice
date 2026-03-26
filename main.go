@@ -40,6 +40,7 @@ func main() {
 	r.POST("/api/shorten", data.shortenURL)
 	r.GET("/s/:shortCode", data.redirectToOriginalURL)
 	r.GET("/api/links", data.listURLMappings)
+	r.DELETE("/api/links/:shortCode", data.deleteURLMappings)
 	r.Run() // listen and serve on 0.0.0.0:8080
 }
 
@@ -104,4 +105,19 @@ func (d *URLMappingData) listURLMappings(c *gin.Context) {
 		})
 	}
 	c.JSON(200, response)
+}
+
+func (d *URLMappingData) deleteURLMappings(c *gin.Context) {
+	shortCode := c.Param("shortCode")
+	_, exists := d.store[shortCode]
+	if !exists {
+		c.JSON(404, gin.H{
+			"error": "Short code not found",
+		})
+		return
+	}
+	delete(d.store, shortCode)
+	c.JSON(200, gin.H{
+		"message": "Short code deleted successfully",
+	})
 }
